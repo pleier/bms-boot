@@ -3,11 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.github.plei</groupId>
+	<groupId>com.github.pleier</groupId>
 	<artifactId>bms-boot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<modules>
-		<module>commom</module>
+		<module>bms-commom</module>
+		<module>bms-admin</module>
 	</modules>
 	<packaging>pom</packaging>
 
