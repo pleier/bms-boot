@@ -1,15 +1,14 @@
 package com.github.pleier.modules.sys.service.impl;
 
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.github.pleier.modules.sys.dao.SysRoleDeptDao;
+import com.github.pleier.modules.sys.entity.SysRoleDeptEntity;
 import com.github.pleier.modules.sys.service.SysRoleDeptService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 角色与部门对应关系
@@ -18,31 +17,37 @@ import java.util.Map;
  * @date: 2017/12/11
  */
 @Service("sysRoleDeptService")
-public class SysRoleDeptServiceImpl implements SysRoleDeptService {
-
-    @Autowired
-    @Qualifier("sysRoleDeptDao")
-    private SysRoleDeptDao sysRoleDeptDao;
+public class SysRoleDeptServiceImpl extends ServiceImpl<SysRoleDeptDao,SysRoleDeptEntity> implements SysRoleDeptService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdate(Long roleId, List<Long> deptIdList) {
-        //先删除角色与菜单关系
-        sysRoleDeptDao.delete(roleId);
+        //先删除角色与部门关系
+        deleteBatch(new Long[]{roleId});
 
-        if (deptIdList.size() == 0) {
-            return;
+        if(deptIdList.size() == 0){
+            return ;
         }
 
         //保存角色与菜单关系
-        Map<String, Object> map = new HashMap<>(16);
-        map.put("roleId", roleId);
-        map.put("deptIdList", deptIdList);
-        sysRoleDeptDao.save(map);
+        List<SysRoleDeptEntity> list = new ArrayList<>(deptIdList.size());
+        for(Long deptId : deptIdList){
+            SysRoleDeptEntity sysRoleDeptEntity = new SysRoleDeptEntity();
+            sysRoleDeptEntity.setDeptId(deptId);
+            sysRoleDeptEntity.setRoleId(roleId);
+
+            list.add(sysRoleDeptEntity);
+        }
+        this.insertBatch(list);
     }
 
     @Override
-    public List<Long> queryDeptIdList(Long roleId) {
-        return sysRoleDeptDao.queryDeptIdList(roleId);
+    public List<Long> queryDeptIdList(Long[] roleIds) {
+        return baseMapper.queryDeptIdList(roleIds);
+    }
+
+    @Override
+    public int deleteBatch(Long[] roleIds){
+        return baseMapper.deleteBatch(roleIds);
     }
 }

@@ -1,12 +1,15 @@
 package com.github.pleier.modules.sys.service.impl;
 
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.github.pleier.modules.sys.dao.SysRoleMenuDao;
+import com.github.pleier.modules.sys.entity.SysRoleMenuEntity;
 import com.github.pleier.modules.sys.service.SysRoleMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,31 +21,37 @@ import java.util.Map;
  * @date: 2017/12/11
  */
 @Service("sysRoleMenuService")
-public class SysRoleMenuServiceImpl implements SysRoleMenuService {
-
-    @Autowired
-    @Qualifier("sysRoleMenuDao")
-    private SysRoleMenuDao sysRoleMenuDao;
+public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuDao,SysRoleMenuEntity> implements SysRoleMenuService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdate(Long roleId, List<Long> menuIdList) {
         //先删除角色与菜单关系
-        sysRoleMenuDao.delete(roleId);
+        deleteBatch(new Long[]{roleId});
 
-        if (menuIdList.size() == 0) {
-            return;
+        if(menuIdList.size() == 0){
+            return ;
         }
 
         //保存角色与菜单关系
-        Map<String, Object> map = new HashMap<>(16);
-        map.put("roleId", roleId);
-        map.put("menuIdList", menuIdList);
-        sysRoleMenuDao.save(map);
+        List<SysRoleMenuEntity> list = new ArrayList<>(menuIdList.size());
+        for(Long menuId : menuIdList){
+            SysRoleMenuEntity sysRoleMenuEntity = new SysRoleMenuEntity();
+            sysRoleMenuEntity.setMenuId(menuId);
+            sysRoleMenuEntity.setRoleId(roleId);
+
+            list.add(sysRoleMenuEntity);
+        }
+        this.insertBatch(list);
     }
 
     @Override
     public List<Long> queryMenuIdList(Long roleId) {
-        return sysRoleMenuDao.queryMenuIdList(roleId);
+        return baseMapper.queryMenuIdList(roleId);
+    }
+
+    @Override
+    public int deleteBatch(Long[] roleIds){
+        return baseMapper.deleteBatch(roleIds);
     }
 }

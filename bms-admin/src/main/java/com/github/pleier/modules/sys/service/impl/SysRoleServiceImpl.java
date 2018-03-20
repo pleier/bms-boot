@@ -1,18 +1,23 @@
 package com.github.pleier.modules.sys.service.impl;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.Page;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.github.pleier.common.annotation.DataFilter;
+import com.github.pleier.common.utils.Constant;
+import com.github.pleier.common.utils.PageUtils;
+import com.github.pleier.common.utils.Query;
 import com.github.pleier.modules.sys.dao.SysRoleDao;
+import com.github.pleier.modules.sys.entity.SysDeptEntity;
 import com.github.pleier.modules.sys.entity.SysRoleEntity;
-import com.github.pleier.modules.sys.service.SysRoleDeptService;
-import com.github.pleier.modules.sys.service.SysRoleMenuService;
-import com.github.pleier.modules.sys.service.SysRoleService;
+import com.github.pleier.modules.sys.service.*;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,42 +27,44 @@ import java.util.Map;
  * @date: 2017/12/11
  */
 @Service("sysRoleService")
-public class SysRoleServiceImpl implements SysRoleService {
+public class SysRoleServiceImpl extends ServiceImpl<SysRoleDao,SysRoleEntity> implements SysRoleService {
 
     @Autowired
-    @Qualifier("sysRoleDao")
-    private SysRoleDao sysRoleDao;
-
-    @Autowired
-    @Qualifier("sysRoleMenuService")
     private SysRoleMenuService sysRoleMenuService;
-
     @Autowired
-    @Qualifier("sysRoleDeptService")
     private SysRoleDeptService sysRoleDeptService;
+    @Autowired
+    private SysUserRoleService sysUserRoleService;
+    @Autowired
+    private SysDeptService sysDeptService;
 
     @Override
-    public SysRoleEntity queryObject(Long roleId) {
-        return sysRoleDao.queryObject(roleId);
-    }
+    @DataFilter(subDept = true, user = false)
+    public PageUtils queryPage(Map<String, Object> params) {
+        String roleName = (String)params.get("roleName");
 
-    @Override
-    @DataFilter(tableAlias = "r", user = false)
-    public List<SysRoleEntity> queryList(Map<String, Object> map) {
-        return sysRoleDao.queryList(map);
-    }
+        Page<SysRoleEntity> page = this.selectPage(
+                new Query<SysRoleEntity>(params).getPage(),
+                new EntityWrapper<SysRoleEntity>()
+                        .like(StringUtils.isNotBlank(roleName),"role_name", roleName)
+                        .addFilterIfNeed(params.get(Constant.SQL_FILTER) != null, (String)params.get(Constant.SQL_FILTER))
+        );
 
-    @Override
-    @DataFilter(tableAlias = "r", user = false)
-    public int queryTotal(Map<String, Object> map) {
-        return sysRoleDao.queryTotal();
+        for(SysRoleEntity sysRoleEntity : page.getRecords()){
+            SysDeptEntity sysDeptEntity = sysDeptService.selectById(sysRoleEntity.getDeptId());
+            if(sysDeptEntity != null){
+                sysRoleEntity.setDeptName(sysDeptEntity.getName());
+            }
+        }
+
+        return new PageUtils(page);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void save(SysRoleEntity role) {
         role.setCreateTime(new Date());
-        sysRoleDao.save(role);
+        this.insert(role);
 
         //保存角色与菜单关系
         sysRoleMenuService.saveOrUpdate(role.getRoleId(), role.getMenuIdList());
@@ -69,7 +76,7 @@ public class SysRoleServiceImpl implements SysRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(SysRoleEntity role) {
-        sysRoleDao.update(role);
+        this.updateById(role);
 
         //更新角色与菜单关系
         sysRoleMenuService.saveOrUpdate(role.getRoleId(), role.getMenuIdList());
@@ -81,6 +88,16 @@ public class SysRoleServiceImpl implements SysRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteBatch(Long[] roleIds) {
-        sysRoleDao.deleteBatch(roleIds);
+        //删除角色
+        this.deleteBatchIds(Arrays.asList(roleIds));
+
+        //删除角色与菜单关联
+        sysRoleMenuService.deleteBatch(roleIds);
+
+        //删除角色与部门关联
+        sysRoleDeptService.deleteBatch(roleIds);
+
+        //删除角色与用户关联
+        sysUserRoleService.deleteBatch(roleIds);
     }
 }

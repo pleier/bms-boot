@@ -20,7 +20,7 @@ public interface SysRoleDeptDao extends BaseMapper<SysRoleDeptEntity> {
      * @param roleId
      * @return 部门ID列表
      */
-    List<Long> queryDeptIdList(Long roleId);
+    List<Long> queryDeptIdList(Long[] roleId);
 
     /**
      * 根据角色ID数组，批量删除

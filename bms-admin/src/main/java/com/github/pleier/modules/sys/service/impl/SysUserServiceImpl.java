@@ -1,20 +1,26 @@
 package com.github.pleier.modules.sys.service.impl;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.Page;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.github.pleier.common.annotation.DataFilter;
+import com.github.pleier.common.utils.Constant;
+import com.github.pleier.common.utils.PageUtils;
+import com.github.pleier.common.utils.Query;
 import com.github.pleier.modules.sys.dao.SysUserDao;
+import com.github.pleier.modules.sys.entity.SysDeptEntity;
 import com.github.pleier.modules.sys.entity.SysUserEntity;
+import com.github.pleier.modules.sys.service.SysDeptService;
 import com.github.pleier.modules.sys.service.SysUserRoleService;
 import com.github.pleier.modules.sys.service.SysUserService;
 import com.github.pleier.modules.sys.shiro.ShiroUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,46 +31,36 @@ import java.util.Map;
  * @date: 2017/11/29
  */
 @Service("sysUserService")
-public class SysUserServiceImpl implements SysUserService {
+public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUserEntity> implements SysUserService {
 
     @Autowired
-    @Qualifier("sysUserDao")
-    private SysUserDao sysUserDao;
-
-    @Autowired
-    @Qualifier("sysUserRoleService")
     private SysUserRoleService sysUserRoleService;
-
-    @Override
-    public List<String> queryAllPerms(Long userId) {
-        return sysUserDao.queryAllPerms(userId);
-    }
+    @Autowired
+    private SysDeptService sysDeptService;
 
     @Override
     public List<Long> queryAllMenuId(Long userId) {
-        return sysUserDao.queryAllMenuId(userId);
+        return baseMapper.queryAllMenuId(userId);
     }
 
     @Override
-    public SysUserEntity queryByUserName(String username) {
-        return sysUserDao.queryByUserName(username);
-    }
+    @DataFilter(subDept = true, user = false)
+    public PageUtils queryPage(Map<String, Object> params) {
+        String username = (String) params.get("username");
 
-    @Override
-    public SysUserEntity queryObject(Long userId) {
-        return sysUserDao.queryObject(userId);
-    }
+        Page<SysUserEntity> page = this.selectPage(
+                new Query<SysUserEntity>(params).getPage(),
+                new EntityWrapper<SysUserEntity>()
+                        .like(StringUtils.isNotBlank(username), "username", username)
+                        .addFilterIfNeed(params.get(Constant.SQL_FILTER) != null, (String) params.get(Constant.SQL_FILTER))
+        );
 
-    @Override
-    @DataFilter(tableAlias = "u", user = false)
-    public List<SysUserEntity> queryList(Map<String, Object> map) {
-        return sysUserDao.queryList(map);
-    }
+        for (SysUserEntity sysUserEntity : page.getRecords()) {
+            SysDeptEntity sysDeptEntity = sysDeptService.selectById(sysUserEntity.getDeptId());
+            sysUserEntity.setDeptName(sysDeptEntity.getName());
+        }
 
-    @Override
-    @DataFilter(tableAlias = "u", user = false)
-    public int queryTotal(Map<String, Object> map) {
-        return sysUserDao.queryTotal(map);
+        return new PageUtils(page);
     }
 
     @Override
@@ -75,7 +71,7 @@ public class SysUserServiceImpl implements SysUserService {
         String salt = RandomStringUtils.randomAlphanumeric(20);
         user.setSalt(salt);
         user.setPassword(ShiroUtils.sha256(user.getPassword(), user.getSalt()));
-        sysUserDao.save(user);
+        this.insert(user);
 
         //保存用户与角色关系
         sysUserRoleService.saveOrUpdate(user.getUserId(), user.getRoleIdList());
@@ -89,24 +85,18 @@ public class SysUserServiceImpl implements SysUserService {
         } else {
             user.setPassword(ShiroUtils.sha256(user.getPassword(), user.getSalt()));
         }
-        sysUserDao.update(user);
+        this.updateById(user);
 
         //保存用户与角色关系
         sysUserRoleService.saveOrUpdate(user.getUserId(), user.getRoleIdList());
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteBatch(Long[] userIds) {
-        sysUserDao.deleteBatch(userIds);
-    }
 
     @Override
-    public int updatePassword(Long userId, String password, String newPassword) {
-        Map<String, Object> map = new HashMap<>(16);
-        map.put("userId", userId);
-        map.put("password", password);
-        map.put("newPassword", newPassword);
-        return sysUserDao.updatePassword(map);
+    public boolean updatePassword(Long userId, String password, String newPassword) {
+        SysUserEntity userEntity = new SysUserEntity();
+        userEntity.setPassword(newPassword);
+        return this.update(userEntity,
+                new EntityWrapper<SysUserEntity>().eq("user_id", userId).eq("password", password));
     }
 }
