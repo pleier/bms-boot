@@ -3,7 +3,6 @@ package com.github.pleier.modules.sys.controller;
 import com.github.pleier.common.annotation.SysLog;
 import com.github.pleier.common.utils.Constant;
 import com.github.pleier.common.utils.PageUtils;
-import com.github.pleier.common.utils.Query;
 import com.github.pleier.common.utils.Result;
 import com.github.pleier.common.validator.ValidatorUtils;
 import com.github.pleier.modules.sys.entity.SysRoleEntity;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

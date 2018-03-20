@@ -1,6 +1,6 @@
 package com.github.pleier.modules.sys.shiro;
 
-import com.github.plei.common.utils.RedisKeys;
+import com.github.pleier.common.utils.RedisKeys;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
