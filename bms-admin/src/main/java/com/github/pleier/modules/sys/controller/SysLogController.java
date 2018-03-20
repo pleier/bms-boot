@@ -37,12 +37,8 @@ public class SysLogController extends AbstractController {
     @RequestMapping("/list")
     @RequiresPermissions("sys:log:list")
     public Result list(@RequestParam Map<String, Object> params) {
-        //查询列表数据
-        Query query = new Query(params);
-        List<SysLogEntity> sysLogList = sysLogService.queryList(query);
-        int total = sysLogService.queryTotal(query);
 
-        PageUtils pageUtil = new PageUtils(sysLogList, total, query.getLimit(), query.getPage());
+        PageUtils pageUtil = sysLogService.queryPage(params);
 
         return Result.ok().put("page", pageUtil);
     }

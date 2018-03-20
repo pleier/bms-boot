@@ -67,9 +67,20 @@ public class SysDeptController extends AbstractController {
     @RequiresPermissions("sys:dept:list")
     public Result info() {
         long deptId = 0;
-        if (getUserId() != Constant.SUPER_ADMIN) {
-            SysDeptEntity dept = sysDeptService.queryObject(getDeptId());
-            deptId = dept.getParentId();
+        if(getUserId() != Constant.SUPER_ADMIN){
+            List<SysDeptEntity> deptList = sysDeptService.queryList(new HashMap<String, Object>());
+            Long parentId = null;
+            for(SysDeptEntity sysDeptEntity : deptList){
+                if(parentId == null){
+                    parentId = sysDeptEntity.getParentId();
+                    continue;
+                }
+
+                if(parentId > sysDeptEntity.getParentId().longValue()){
+                    parentId = sysDeptEntity.getParentId();
+                }
+            }
+            deptId = parentId;
         }
 
         return Result.ok().put("deptId", deptId);
@@ -81,7 +92,7 @@ public class SysDeptController extends AbstractController {
     @RequestMapping("/info/{deptId}")
     @RequiresPermissions("sys:dept:info")
     public Result info(@PathVariable("deptId") Long deptId) {
-        SysDeptEntity dept = sysDeptService.queryObject(deptId);
+        SysDeptEntity dept = sysDeptService.selectById(deptId);
         return Result.ok().put("dept", dept);
     }
 
@@ -91,7 +102,7 @@ public class SysDeptController extends AbstractController {
     @RequestMapping("/save")
     @RequiresPermissions("sys:dept:save")
     public Result save(@RequestBody SysDeptEntity dept) {
-        sysDeptService.save(dept);
+        sysDeptService.insert(dept);
         return Result.ok();
     }
 
@@ -106,7 +117,7 @@ public class SysDeptController extends AbstractController {
         if (deptList.size() > 0) {
             return Result.error("请先删除子部门");
         }
-        sysDeptService.delete(deptId);
+        sysDeptService.deleteById(deptId);
         return Result.ok();
     }
 
@@ -116,7 +127,7 @@ public class SysDeptController extends AbstractController {
     @RequestMapping("/update")
     @RequiresPermissions("sys:dept:update")
     public Result update(@RequestBody SysDeptEntity dept){
-        sysDeptService.update(dept);
+        sysDeptService.updateById(dept);
         return Result.ok();
     }
 }

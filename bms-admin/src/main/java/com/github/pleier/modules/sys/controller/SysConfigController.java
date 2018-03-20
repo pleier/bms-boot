@@ -38,12 +38,8 @@ public class SysConfigController extends AbstractController {
     @RequestMapping("/list")
     @RequiresPermissions("sys:config:list")
     public Result list(@RequestParam Map<String, Object> params) {
-        //查询列表数据
-        Query query = new Query(params);
-        List<SysConfigEntity> configList = sysConfigService.queryList(query);
-        int total = sysConfigService.queryTotal(query);
 
-        PageUtils pageUtil = new PageUtils(configList, total, query.getLimit(), query.getPage());
+        PageUtils pageUtil = sysConfigService.queryPage(params);
 
         return Result.ok().put("page", pageUtil);
     }
@@ -57,7 +53,7 @@ public class SysConfigController extends AbstractController {
     @RequestMapping("/info/{id}")
     @RequiresPermissions("sys:config:info")
     public Result info(@PathVariable("id") Long id) {
-        SysConfigEntity entity = sysConfigService.queryObject(id);
+        SysConfigEntity entity = sysConfigService.selectById(id);
 
         return Result.ok().put("config", entity);
     }

@@ -54,12 +54,7 @@ public class SysRoleController extends AbstractController {
         if (getUserId() != Constant.SUPER_ADMIN) {
             params.put("createUserId", getUserId());
         }
-
-        //查询列表数据
-        Query query = new Query(params);
-        List<SysRoleEntity> list = sysRoleService.queryList(query);
-        int total = sysRoleService.queryTotal(query);
-        PageUtils pageUtil = new PageUtils(list, total, query.getLimit(), query.getPage());
+        PageUtils pageUtil = sysRoleService.queryPage(params);
         return Result.ok().put("page", pageUtil);
     }
 
@@ -69,13 +64,7 @@ public class SysRoleController extends AbstractController {
     @RequestMapping("/select")
     @RequiresPermissions("sys:role:select")
     public Result select() {
-        Map<String, Object> map = new HashMap<>(16);
-
-        //如果不是超级管理员，则只查询自己所拥有的角色列表
-        if (getUserId() != Constant.SUPER_ADMIN) {
-            map.put("createUserId", getUserId());
-        }
-        List<SysRoleEntity> list = sysRoleService.queryList(map);
+        List<SysRoleEntity> list = sysRoleService.selectList(null);
 
         return Result.ok().put("list", list);
     }
@@ -87,14 +76,14 @@ public class SysRoleController extends AbstractController {
     @RequiresPermissions("sys:role:info")
     public Result info(@PathVariable("roleId") Long roleId) {
 
-        SysRoleEntity role = sysRoleService.queryObject(roleId);
+        SysRoleEntity role = sysRoleService.selectById(roleId);
 
         //查询角色对应的菜单
         List<Long> menuIdList = sysRoleMenuService.queryMenuIdList(roleId);
         role.setMenuIdList(menuIdList);
 
         //查询角色对应的部门
-        List<Long> deptIdList = sysRoleDeptService.queryDeptIdList(roleId);
+        List<Long> deptIdList = sysRoleDeptService.queryDeptIdList(new Long[]{roleId});
         role.setDeptIdList(deptIdList);
 
         return Result.ok().put("role", role);

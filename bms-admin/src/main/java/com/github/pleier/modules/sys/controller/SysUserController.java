@@ -2,9 +2,8 @@ package com.github.pleier.modules.sys.controller;
 
 import com.github.pleier.common.annotation.SysLog;
 import com.github.pleier.common.utils.PageUtils;
-import com.github.pleier.common.utils.Query;
 import com.github.pleier.common.utils.Result;
-import com.github.pleier.common.validator.AbstractAssert;
+import com.github.pleier.common.validator.Assert;
 import com.github.pleier.common.validator.ValidatorUtils;
 import com.github.pleier.common.validator.group.AddGroup;
 import com.github.pleier.common.validator.group.UpdateGroup;
@@ -15,9 +14,9 @@ import com.github.pleier.modules.sys.shiro.ShiroUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -30,40 +29,50 @@ import java.util.Map;
 @RestController
 @RequestMapping("/sys/user")
 public class SysUserController extends AbstractController {
-
     @Autowired
-    @Qualifier("sysUserService")
     private SysUserService sysUserService;
-
     @Autowired
-    @Qualifier("sysUserRoleService")
     private SysUserRoleService sysUserRoleService;
 
     /**
-     * 获取登录用户信息
-     *
-     * @return
-     */
-    @RequestMapping("/info")
-    public Result info() {
-        return Result.ok().put("user", getUser());
-    }
-
-
-    /**
-     * 查询所有用户
-     *
-     * @param params
-     * @return
+     * 所有用户列表
      */
     @RequestMapping("/list")
     @RequiresPermissions("sys:user:list")
-    public Result list(@RequestParam Map<String, Object> params) {
-        Query query = new Query(params);
-        List<SysUserEntity> userList = sysUserService.queryList(query);
-        int total = sysUserService.queryTotal(query);
-        PageUtils pageUtil = new PageUtils(userList, total, query.getLimit(), query.getPage());
-        return Result.ok().put("page", pageUtil);
+    public Result list(@RequestParam Map<String, Object> params){
+        PageUtils page = sysUserService.queryPage(params);
+
+        return Result.ok().put("page", page);
+    }
+
+    /**
+     * 获取登录的用户信息
+     */
+    @RequestMapping("/info")
+    public Result info(){
+        return Result.ok().put("user", getUser());
+    }
+
+    /**
+     * 修改登录用户密码
+     */
+    @SysLog("修改密码")
+    @RequestMapping("/password")
+    public Result password(String password, String newPassword){
+        Assert.isBlank(newPassword, "新密码不为能空");
+
+        //原密码
+        password = ShiroUtils.sha256(password, getUser().getSalt());
+        //新密码
+        newPassword = ShiroUtils.sha256(newPassword, getUser().getSalt());
+
+        //更新密码
+        boolean flag = sysUserService.updatePassword(getUserId(), password, newPassword);
+        if(!flag){
+            return Result.error("原密码不正确");
+        }
+
+        return Result.ok();
     }
 
     /**
@@ -71,8 +80,8 @@ public class SysUserController extends AbstractController {
      */
     @RequestMapping("/info/{userId}")
     @RequiresPermissions("sys:user:info")
-    public Result info(@PathVariable("userId") Long userId) {
-        SysUserEntity user = sysUserService.queryObject(userId);
+    public Result info(@PathVariable("userId") Long userId){
+        SysUserEntity user = sysUserService.selectById(userId);
 
         //获取用户所属的角色列表
         List<Long> roleIdList = sysUserRoleService.queryRoleIdList(userId);
@@ -82,34 +91,12 @@ public class SysUserController extends AbstractController {
     }
 
     /**
-     * 修改登录用户密码
-     */
-    @SysLog("修改密码")
-    @RequestMapping("/password")
-    public Result password(String password, String newPassword) {
-        AbstractAssert.isBlank(newPassword, "新密码不为能空");
-
-        //原密码
-        password = ShiroUtils.sha256(password, getUser().getSalt());
-        //新密码
-        newPassword = ShiroUtils.sha256(newPassword, getUser().getSalt());
-
-        //更新密码
-        int count = sysUserService.updatePassword(getUserId(), password, newPassword);
-        if (count == 0) {
-            return Result.error("原密码不正确");
-        }
-
-        return Result.ok();
-    }
-
-    /**
      * 保存用户
      */
     @SysLog("保存用户")
     @RequestMapping("/save")
     @RequiresPermissions("sys:user:save")
-    public Result save(@RequestBody SysUserEntity user) {
+    public Result save(@RequestBody SysUserEntity user){
         ValidatorUtils.validateEntity(user, AddGroup.class);
 
         sysUserService.save(user);
@@ -123,7 +110,7 @@ public class SysUserController extends AbstractController {
     @SysLog("修改用户")
     @RequestMapping("/update")
     @RequiresPermissions("sys:user:update")
-    public Result update(@RequestBody SysUserEntity user) {
+    public Result update(@RequestBody SysUserEntity user){
         ValidatorUtils.validateEntity(user, UpdateGroup.class);
 
         sysUserService.update(user);
@@ -137,16 +124,16 @@ public class SysUserController extends AbstractController {
     @SysLog("删除用户")
     @RequestMapping("/delete")
     @RequiresPermissions("sys:user:delete")
-    public Result delete(@RequestBody Long[] userIds) {
-        if (ArrayUtils.contains(userIds, 1L)) {
+    public Result delete(@RequestBody Long[] userIds){
+        if(ArrayUtils.contains(userIds, 1L)){
             return Result.error("系统管理员不能删除");
         }
 
-        if (ArrayUtils.contains(userIds, getUserId())) {
+        if(ArrayUtils.contains(userIds, getUserId())){
             return Result.error("当前用户不能删除");
         }
 
-        sysUserService.deleteBatch(userIds);
+        sysUserService.deleteBatchIds(Arrays.asList(userIds));
 
         return Result.ok();
     }

@@ -50,7 +50,13 @@ public class SysMenuController {
     @RequestMapping("/list")
     @RequiresPermissions("sys:menu:list")
     public List<SysMenuEntity> list() {
-        List<SysMenuEntity> menuList = sysMenuService.queryList(new HashMap<>(16));
+        List<SysMenuEntity> menuList = sysMenuService.selectList(null);
+        for(SysMenuEntity sysMenuEntity : menuList){
+            SysMenuEntity parentMenuEntity = sysMenuService.selectById(sysMenuEntity.getParentId());
+            if(parentMenuEntity != null){
+                sysMenuEntity.setParentName(parentMenuEntity.getName());
+            }
+        }
         return menuList;
     }
 
@@ -85,7 +91,7 @@ public class SysMenuController {
     @RequestMapping("/info/{menuId}")
     @RequiresPermissions("sys:menu:info")
     public Result info(@PathVariable("menuId") Long menuId) {
-        SysMenuEntity menu = sysMenuService.queryObject(menuId);
+        SysMenuEntity menu = sysMenuService.selectById(menuId);
         return Result.ok().put("menu", menu);
     }
 
@@ -101,7 +107,7 @@ public class SysMenuController {
     public Result save(@RequestBody SysMenuEntity menu) {
         //数据校验
         verifyForm(menu);
-        sysMenuService.save(menu);
+        sysMenuService.insert(menu);
         return Result.ok();
     }
 
@@ -117,7 +123,7 @@ public class SysMenuController {
     public Result update(@RequestBody SysMenuEntity menu) {
         //数据校验
         verifyForm(menu);
-        sysMenuService.update(menu);
+        sysMenuService.updateById(menu);
         return Result.ok();
     }
 
@@ -125,18 +131,17 @@ public class SysMenuController {
     @RequestMapping("/delete")
     @RequiresPermissions("sys:menu:delete")
     public Result delete(long menuId) {
-        int max = 31;
-        if (menuId <= max) {
+        if(menuId <= 31){
             return Result.error("系统菜单，不能删除");
         }
 
         //判断是否有子菜单或按钮
         List<SysMenuEntity> menuList = sysMenuService.queryListParentId(menuId);
-        if (menuList.size() > 0) {
+        if(menuList.size() > 0){
             return Result.error("请先删除子菜单或按钮");
         }
 
-        sysMenuService.deleteBatch(new Long[]{menuId});
+        sysMenuService.delete(menuId);
 
         return Result.ok();
     }
@@ -147,43 +152,43 @@ public class SysMenuController {
      * @param menu
      */
     private void verifyForm(SysMenuEntity menu) {
-        if (StringUtils.isBlank(menu.getName())) {
+        if(StringUtils.isBlank(menu.getName())){
             throw new BmsException("菜单名称不能为空");
         }
 
-        if (menu.getParentId() == null) {
+        if(menu.getParentId() == null){
             throw new BmsException("上级菜单不能为空");
         }
 
         //菜单
-        if (menu.getType() == Constant.MenuType.MENU.getValue()) {
-            if (StringUtils.isBlank(menu.getUrl())) {
+        if(menu.getType() == Constant.MenuType.MENU.getValue()){
+            if(StringUtils.isBlank(menu.getUrl())){
                 throw new BmsException("菜单URL不能为空");
             }
         }
 
         //上级菜单类型
         int parentType = Constant.MenuType.CATALOG.getValue();
-        if (menu.getParentId() != 0) {
-            SysMenuEntity parentMenu = sysMenuService.queryObject(menu.getParentId());
+        if(menu.getParentId() != 0){
+            SysMenuEntity parentMenu = sysMenuService.selectById(menu.getParentId());
             parentType = parentMenu.getType();
         }
 
         //目录、菜单
-        if (menu.getType() == Constant.MenuType.CATALOG.getValue() ||
-                menu.getType() == Constant.MenuType.MENU.getValue()) {
-            if (parentType != Constant.MenuType.CATALOG.getValue()) {
+        if(menu.getType() == Constant.MenuType.CATALOG.getValue() ||
+                menu.getType() == Constant.MenuType.MENU.getValue()){
+            if(parentType != Constant.MenuType.CATALOG.getValue()){
                 throw new BmsException("上级菜单只能为目录类型");
             }
-            return;
+            return ;
         }
 
         //按钮
-        if (menu.getType() == Constant.MenuType.BUTTON.getValue()) {
-            if (parentType != Constant.MenuType.MENU.getValue()) {
+        if(menu.getType() == Constant.MenuType.BUTTON.getValue()){
+            if(parentType != Constant.MenuType.MENU.getValue()){
                 throw new BmsException("上级菜单只能为菜单类型");
             }
-            return;
+            return ;
         }
     }
 }
