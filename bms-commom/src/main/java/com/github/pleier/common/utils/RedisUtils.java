@@ -22,19 +22,18 @@ public class RedisUtils {
 
     @Autowired
     @Qualifier("redisTemplate")
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String,String> redisTemplate;
 
-    @Resource(name="redisTemplate")
-    private ValueOperations<String, String> valueOperations;
+
 
     /**
      * 默认过期时长，单位：秒
      */
-    public final static long DEFAULT_EXPIRE = 60 * 30;
+    private final static long DEFAULT_EXPIRE = 60*60 * 30;
     /**
      * 不设置过期时长
      */
-    public final static long NOT_EXPIRE = -1;
+    private final static long NOT_EXPIRE = -1;
 
     /**
      * 插入数据
@@ -44,7 +43,7 @@ public class RedisUtils {
      * @param expire 过期时间
      */
     public void set(String key, Object value, long expire) {
-        valueOperations.set(key, toJson(value));
+        redisTemplate.opsForValue().set(key, toJson(value));
         if (expire != NOT_EXPIRE) {
             redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }
@@ -70,7 +69,7 @@ public class RedisUtils {
      * @return clazz
      */
     public <T> T get(String key, Class<T> clazz, long expire) {
-        String value = valueOperations.get(key);
+        String value = redisTemplate.opsForValue().get(key);
         if (expire != NOT_EXPIRE) {
             redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }
@@ -97,7 +96,7 @@ public class RedisUtils {
      * @return String
      */
     public String get(String key, long expire) {
-        String value = valueOperations.get(key);
+        String value = redisTemplate.opsForValue().get(key);
         if (expire != NOT_EXPIRE) {
             redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }

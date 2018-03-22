@@ -6,16 +6,14 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 
+/**
+ * @author : pleier
+ * @date : 2018-03-22
+ */
 @SpringBootApplication
-@ComponentScan("com.github.pleier.modules.*.dao")
-public class BmsAdminApplication extends SpringBootServletInitializer {
+public class BmsAdminApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BmsAdminApplication.class, args);
-	}
-
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(BmsAdminApplication.class);
 	}
 }

@@ -1,25 +1,26 @@
 package com.github.pleier.modules.sys.shiro;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pleier.common.utils.RedisKeys;
+import com.github.pleier.common.utils.RedisUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 自定义shiro的sessionDao
  * @author : pleier
- * @date: 2018/1/8
+ * @date : 2018/3/22
  */
+@Component
 public class RedisShiroSessionDAO extends EnterpriseCacheSessionDAO {
 
     @Autowired
-    @Qualifier("redisTemplate")
-    private RedisTemplate redisTemplate;
+    private RedisUtils redisUtils;
 
     @Override
     protected Serializable doCreate(Session session) {
@@ -31,8 +32,8 @@ public class RedisShiroSessionDAO extends EnterpriseCacheSessionDAO {
 
     @Override
     protected Session doReadSession(Serializable sessionId) {
-        Session session = super.doReadSession(sessionId);
-        if (session == null) {
+        Session session =super.doReadSession(sessionId);
+        if(session == null){
             final String key = RedisKeys.getShiroSessionKey(sessionId.toString());
             session = getShiroSession(key);
         }
@@ -50,16 +51,24 @@ public class RedisShiroSessionDAO extends EnterpriseCacheSessionDAO {
     protected void doDelete(Session session) {
         super.doDelete(session);
         final String key = RedisKeys.getShiroSessionKey(session.getId().toString());
-        redisTemplate.delete(key);
+        redisUtils.delete(key);
     }
 
+    /**
+     * 从redis中获取session
+     * @param key
+     * @return
+     */
     private Session getShiroSession(String key) {
-        return (Session) redisTemplate.opsForValue().get(key);
+        return redisUtils.get(key,Session.class);
     }
 
-    private void setShiroSession(String key, Session session) {
-        redisTemplate.opsForValue().set(key, session);
-        //60分钟过期
-        redisTemplate.expire(key, 60, TimeUnit.MINUTES);
+    /**
+     * session 放入redis
+     * @param key
+     * @param session
+     */
+    private void setShiroSession(String key, Session session){
+        redisUtils.set(key, session,1800L);
     }
 }
