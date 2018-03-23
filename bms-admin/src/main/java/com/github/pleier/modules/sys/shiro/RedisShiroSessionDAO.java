@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 
 /**
+ * shiro与redis集成
+ *
  * @author : pleier
  * @date : 2018/3/22
  */
@@ -29,8 +31,8 @@ public class RedisShiroSessionDAO extends EnterpriseCacheSessionDAO {
 
     @Override
     protected Session doReadSession(Serializable sessionId) {
-        Session session =super.doReadSession(sessionId);
-        if(session == null){
+        Session session = super.doReadSession(sessionId);
+        if (session == null) {
             final String key = RedisKeys.getShiroSessionKey(sessionId.toString());
             session = getShiroSession(key);
         }
@@ -53,19 +55,21 @@ public class RedisShiroSessionDAO extends EnterpriseCacheSessionDAO {
 
     /**
      * 从redis中获取session
+     *
      * @param key
      * @return
      */
     private Session getShiroSession(String key) {
-        return redisUtils.get(key,Session.class);
+        return redisUtils.get(key, Session.class);
     }
 
     /**
      * session 放入redis
+     *
      * @param key
      * @param session
      */
-    private void setShiroSession(String key, Session session){
-        redisUtils.set(key, session,1800L);
+    private void setShiroSession(String key, Session session) {
+        redisUtils.set(key, session, 1800L);
     }
 }
