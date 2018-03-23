@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>人人权限系统</title>
+  <title>bms-boot</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
   <link th:rel="stylesheet" th:href="@{/css/bootstrap.min.css}" type="text/css"/>
@@ -11,8 +11,8 @@
   <link th:rel="stylesheet" th:href="@{/css/AdminLTE.min.css}" type="text/css"/>
   <!-- AdminLTE Skins. Choose a skin from the css/skins
        folder instead of downloading all of them to reduce the load. -->
-  <link th:rel="stylesheet" th:href="@{/css/all-skins.min.css}" type="text/css"/>
-  <link th:rel="stylesheet" th:href="@{/css/main.css}" type="text/css"/>
+  <link th:rel="stylesheet" th:href="@{/css/all-skins.min.css}" href="../css/all-skins.min.css" type="text/css"/>
+  <link th:rel="stylesheet" th:href="@{/css/main.css}" href="../css/main.css" type="text/css"/>
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
@@ -21,7 +21,7 @@
   <![endif]-->
 </head>
 <body class="hold-transition login-page">
-<div class="login-box" id="rrapp" v-cloak>
+<div class="login-box" id="bmsBoot" v-cloak>
   <div class="login-logo">
     <b>人人权限系统</b>
   </div>
@@ -74,7 +74,7 @@
 <script th:src="@{/libs/app.js}"></script>
 <script type="text/javascript">
 var vm = new Vue({
-	el:'#rrapp',
+	el:'#bmsBoot',
 	data:{
 		username: '',
 		password: '',
