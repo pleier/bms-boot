@@ -22,14 +22,12 @@ public class RedisUtils {
 
     @Autowired
     @Qualifier("redisTemplate")
-    private RedisTemplate<String,String> redisTemplate;
-
-
+    private RedisTemplate<String, String> redisTemplate;
 
     /**
      * 默认过期时长，单位：秒
      */
-    private final static long DEFAULT_EXPIRE = 60*60 * 30;
+    private final static long DEFAULT_EXPIRE = 60 * 60 * 30;
     /**
      * 不设置过期时长
      */
@@ -52,7 +50,7 @@ public class RedisUtils {
     /**
      * 插入数据，过期时间为默认
      *
-     * @param key key
+     * @param key   key
      * @param value value
      */
     public void set(String key, Object value) {
@@ -62,10 +60,10 @@ public class RedisUtils {
     /**
      * 获取从json转换的对象，更新过期时间
      *
-     * @param key key
-     * @param clazz clazz
+     * @param key    key
+     * @param clazz  clazz
      * @param expire 过期时间
-     * @param <T> clazz
+     * @param <T>    clazz
      * @return clazz
      */
     public <T> T get(String key, Class<T> clazz, long expire) {
@@ -79,9 +77,9 @@ public class RedisUtils {
     /**
      * 获取从json转换的对象，不更新过期时间
      *
-     * @param key key
+     * @param key   key
      * @param clazz 转换后的类型
-     * @param <T> clazz
+     * @param <T>   clazz
      * @return clazz
      */
     public <T> T get(String key, Class<T> clazz) {
@@ -91,7 +89,7 @@ public class RedisUtils {
     /**
      * 获取String类型value，更新过期时间
      *
-     * @param key key
+     * @param key    key
      * @param expire 过期时间（单位：秒）
      * @return String
      */
@@ -125,9 +123,9 @@ public class RedisUtils {
     /**
      * Object转成JSON数据
      */
-    private String toJson(Object object){
-        if(object instanceof Integer || object instanceof Long || object instanceof Float ||
-                object instanceof Double || object instanceof Boolean || object instanceof String){
+    private String toJson(Object object) {
+        if (object instanceof Integer || object instanceof Long || object instanceof Float ||
+                object instanceof Double || object instanceof Boolean || object instanceof String) {
             return String.valueOf(object);
         }
         return JSON.toJSONString(object);
@@ -136,7 +134,7 @@ public class RedisUtils {
     /**
      * JSON数据，转成Object
      */
-    private <T> T fromJson(String json, Class<T> clazz){
+    private <T> T fromJson(String json, Class<T> clazz) {
         return JSON.parseObject(json, clazz);
     }
 }

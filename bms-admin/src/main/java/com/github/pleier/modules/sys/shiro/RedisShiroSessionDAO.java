@@ -1,16 +1,13 @@
 package com.github.pleier.modules.sys.shiro;
 
-import com.alibaba.fastjson.JSON;
 import com.github.pleier.common.utils.RedisKeys;
 import com.github.pleier.common.utils.RedisUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author : pleier
