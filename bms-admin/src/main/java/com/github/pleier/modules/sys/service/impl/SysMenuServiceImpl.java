@@ -2,9 +2,12 @@ package com.github.pleier.modules.sys.service.impl;
 
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.github.pleier.common.utils.Constant;
+import com.github.pleier.common.utils.MapUtils;
 import com.github.pleier.modules.sys.dao.SysMenuDao;
 import com.github.pleier.modules.sys.entity.SysMenuEntity;
 import com.github.pleier.modules.sys.service.SysMenuService;
+import com.github.pleier.modules.sys.service.SysRoleMenuService;
+import com.github.pleier.modules.sys.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,9 @@ import java.util.List;
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuDao, SysMenuEntity> implements SysMenuService {
 
     @Autowired
-    private SysMenuDao sysMenuDao;
+    private SysUserService sysUserService;
+    @Autowired
+    private SysRoleMenuService sysRoleMenuService;
 
 
     @Override
@@ -47,7 +52,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuDao, SysMenuEntity> i
 
     @Override
     public List<SysMenuEntity> queryNotButtonList() {
-        return null;
+        return baseMapper.queryNotButtonList();
     }
 
     @Override
@@ -56,12 +61,17 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuDao, SysMenuEntity> i
         if (userId == Constant.SUPER_ADMIN) {
             return getAllMenuList(null);
         }
-        return null;
+        //用户菜单列表
+        List<Long> menuIdList = sysUserService.queryAllMenuId(userId);
+        return getAllMenuList(menuIdList);
     }
 
     @Override
     public void delete(Long menuId) {
-
+        //删除菜单
+        this.deleteById(menuId);
+        //删除菜单与角色关联
+        sysRoleMenuService.deleteByMap(new MapUtils().put("menu_id", menuId));
     }
 
     /**
@@ -84,10 +94,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuDao, SysMenuEntity> i
      *
      * @param menuList
      * @param menuIdList
-     * @return
+     * @return List<SysMenuEntity>
      */
     private List<SysMenuEntity> getMenuTreeList(List<SysMenuEntity> menuList, List<Long> menuIdList) {
-        List<SysMenuEntity> subMenuList = new ArrayList<SysMenuEntity>();
+        List<SysMenuEntity> subMenuList = new ArrayList<>();
 
         for (SysMenuEntity entity : menuList) {
             //目录

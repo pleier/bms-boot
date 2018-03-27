@@ -15,6 +15,12 @@ import java.util.Map;
  */
 public interface SysUserService extends IService<SysUserEntity> {
 
+    /**
+     * 分页查询
+     *
+     * @param params
+     * @return
+     */
     PageUtils queryPage(Map<String, Object> params);
 
     /**
