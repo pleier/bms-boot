@@ -36,7 +36,7 @@ $(window).on('resize', function() {
 Vue.component('menuItem',menuItem);
 
 var vm = new Vue({
-	el:'#rrapp',
+	el:'#bmsBoot',
 	data:{
 		user:{},
 		menuList:{},
@@ -85,17 +85,7 @@ var vm = new Vue({
 					});
 	            }
 			});
-		},
-        donate: function () {
-            layer.open({
-                type: 2,
-                title: false,
-                area: ['806px', '467px'],
-                closeBtn: 1,
-                shadeClose: false,
-                content: ['http://cdn.renren.io/donate.jpg', 'no']
-            });
-        }
+		}
 	},
 	created: function(){
 		this.getMenuList();
