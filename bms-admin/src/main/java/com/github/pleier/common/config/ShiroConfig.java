@@ -1,5 +1,6 @@
 package com.github.pleier.common.config;
 
+import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
 import com.github.pleier.modules.sys.shiro.RedisShiroSessionDAO;
 import com.github.pleier.modules.sys.shiro.UserRealm;
 import org.apache.shiro.mgt.SecurityManager;
@@ -97,5 +98,10 @@ public class ShiroConfig {
         AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
         advisor.setSecurityManager(securityManager);
         return advisor;
+    }
+
+    @Bean
+    public ShiroDialect shiroDialect() {
+        return new ShiroDialect();
     }
 }
