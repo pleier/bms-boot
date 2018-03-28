@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotations.TableName;
 import java.io.Serializable;
 
 /**
+ * 角色与部门对应关系
+ *
  * @author : pleier
  * @date : 2018/3/27
  */
