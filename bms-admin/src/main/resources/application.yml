@@ -19,7 +19,7 @@ spring:
     suffix: .html
     servlet:
       content-type: text/html
-    mode: html5
+    mode: HTML
     check-template-location: true
 
   #json时间格式化
