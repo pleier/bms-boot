@@ -18,15 +18,15 @@ import java.util.Map;
  * @date : 2018/3/9
  */
 public class RSAUtils {
-    protected static final Logger logger = LoggerFactory.getLogger(RSAUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(RSAUtils.class);
     private static String KEY_RSA_TYPE = "RSA";
     /**
      * JDK方式RSA加密最大只有1024位
      */
     private static int KEY_SIZE = 1024;
     private static int ENCODE_PART_SIZE = KEY_SIZE / 8;
-    public static final String PUBLIC_KEY_NAME = "public";
-    public static final String PRIVATE_KEY_NAME = "private";
+    private static final String PUBLIC_KEY_NAME = "public";
+    private static final String PRIVATE_KEY_NAME = "private";
 
     /**
      * 创建公私秘钥
