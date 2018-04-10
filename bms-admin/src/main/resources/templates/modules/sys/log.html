@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<title>系统日志</title>
-<#include "/header.html">
+	<title>系统日志</title>
+	<th:block th:include="/header.html"/>
 </head>
 <body>
-<div id="rrapp" v-cloak>
+<div id="bmsApp" v-cloak>
 	<div>
 		<div class="grid-btn">
 			<div class="form-group col-sm-2">
@@ -19,6 +19,6 @@
     
 </div>
 
-<script src="${request.contextPath}/statics/js/modules/sys/log.js?_${.now?long}"></script>
+<script th:src="@{js/modules/sys/log.js}"></script>
 </body>
 </html>
