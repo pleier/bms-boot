@@ -57,7 +57,7 @@ var setting = {
 var ztree;
 
 var vm = new Vue({
-    el:'#rrapp',
+    el:'#bmsApp',
     data:{
         q:{
             username: null
