@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-<title>角色管理</title>
-<#include "/header.html">
+	<title>角色管理</title>
+	<th:block th:include="/header.html"/>
 </head>
 <body>
-<div id="rrapp" v-cloak>
+<div id="bmsApp" v-cloak>
 	<div v-show="showList">
 		<div class="grid-btn">
 			<div class="form-group col-sm-2">
@@ -13,15 +13,15 @@
 			</div>
 			<a class="btn btn-default" @click="query">查询</a>
 
-			<#if shiro.hasPermission("sys:role:save")>
-			<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
-			</#if>
-			<#if shiro.hasPermission("sys:role:update")>
-			<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
-			</#if>
-			<#if shiro.hasPermission("sys:role:delete")>
-			<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
-			</#if>
+			<shiro:hasPermission name="sys:role:save">
+				<a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+			</shiro:hasPermission>
+			<shiro:hasPermission name="sys:role:update">
+				<a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+			</shiro:hasPermission>
+			<shiro:hasPermission name="sys:role:delete">
+				<a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+			</shiro:hasPermission>
 		</div>
 	    <table id="jqGrid"></table>
 	    <div id="jqGridPager"></div>
@@ -76,6 +76,6 @@
 	<ul id="deptTree" class="ztree"></ul>
 </div>
 
-<script src="${request.contextPath}/statics/js/modules/sys/role.js?_${.now?long}"></script>
+<script th:src="@{/js/modules/sys/role.js}"></script>
 </body>
 </html>

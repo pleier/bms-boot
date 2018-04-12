@@ -52,3 +52,5 @@ bms:
     open: false  # 是否开启redis缓存  true开启   false关闭
   shiro:
     redis: false # true表示shiro session存到redis里，需要开启redis，才会生效【分布式场景】
+  sysconf:
+    redis: false #true表示参数管理的数据存到redis里

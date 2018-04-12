@@ -94,7 +94,7 @@ var data_setting = {
 };
 
 var vm = new Vue({
-    el:'#rrapp',
+    el:'#bmsApp',
     data:{
         q:{
             roleName: null

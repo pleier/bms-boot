@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-<title>参数管理</title>
-<#include "/header.html">
+	<title>参数管理</title>
+	<th:block th:include="/header.html"/>
 </head>
 <body>
-<div id="rrapp" v-cloak>
+<div id="bmsApp" v-cloak>
 	<div v-show="showList">
 		<div class="grid-btn">
 			<div class="form-group col-sm-2">
@@ -51,6 +51,6 @@
 	</div>
 </div>
 
-<script src="${request.contextPath}/statics/js/modules/sys/config.js?_${.now?long}"></script>
+<script th:src="@{/js/modules/sys/config.js}"></script>
 </body>
 </html>

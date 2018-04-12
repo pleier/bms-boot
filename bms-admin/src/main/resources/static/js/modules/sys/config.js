@@ -36,7 +36,7 @@ $(function () {
 });
 
 var vm = new Vue({
-	el:'#rrapp',
+	el:'#bmsApp',
 	data:{
 		q:{
 			key: null

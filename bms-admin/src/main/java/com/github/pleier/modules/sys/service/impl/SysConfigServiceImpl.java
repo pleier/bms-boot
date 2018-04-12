@@ -13,6 +13,7 @@ import com.github.pleier.modules.sys.redis.SysConfigRedis;
 import com.github.pleier.modules.sys.service.SysConfigService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,12 @@ import java.util.Map;
  */
 @Service("sysConfigService")
 public class SysConfigServiceImpl extends ServiceImpl<SysConfigDao, SysConfigEntity> implements SysConfigService {
+
+    /**
+     * 是否使用redis
+     */
+    @Value("${bms.sysconf.redis}")
+    private Boolean useRedis = false;
 
     @Autowired
     private SysConfigRedis sysConfigRedis;
@@ -49,21 +56,27 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigDao, SysConfigEnt
     @Transactional(rollbackFor = Exception.class)
     public void save(SysConfigEntity config) {
         this.insert(config);
-        sysConfigRedis.saveOrUpdate(config);
+        if(useRedis){
+            sysConfigRedis.saveOrUpdate(config);
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(SysConfigEntity config) {
         this.updateById(config);
-        sysConfigRedis.saveOrUpdate(config);
+        if(useRedis){
+            sysConfigRedis.saveOrUpdate(config);
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateValueByKey(String key, String value) {
         baseMapper.updateValueByKey(key, value);
-        sysConfigRedis.delete(key);
+        if(useRedis){
+            sysConfigRedis.delete(key);
+        }
     }
 
     @Override
@@ -71,7 +84,9 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigDao, SysConfigEnt
     public void deleteBatch(Long[] ids) {
         for (Long id : ids) {
             SysConfigEntity config = this.selectById(id);
-            sysConfigRedis.delete(config.getKey());
+            if(useRedis){
+                sysConfigRedis.delete(config.getKey());
+            }
         }
 
         this.deleteBatchIds(Arrays.asList(ids));
@@ -82,7 +97,9 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigDao, SysConfigEnt
         SysConfigEntity config = sysConfigRedis.get(key);
         if (config == null) {
             config = baseMapper.queryByKey(key);
-            sysConfigRedis.saveOrUpdate(config);
+            if(useRedis){
+                sysConfigRedis.saveOrUpdate(config);
+            }
         }
 
         return config == null ? null : config.getValue();
