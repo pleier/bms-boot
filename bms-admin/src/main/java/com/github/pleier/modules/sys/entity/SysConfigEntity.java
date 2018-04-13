@@ -15,6 +15,8 @@ import java.io.Serializable;
 @TableName("sys_config")
 public class SysConfigEntity implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * 主键
      */
@@ -37,6 +39,14 @@ public class SysConfigEntity implements Serializable {
      * 备注
      */
     private String remark;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getKey() {
         return key;
