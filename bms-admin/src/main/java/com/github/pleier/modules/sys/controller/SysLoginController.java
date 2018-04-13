@@ -6,6 +6,8 @@ import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.Producer;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +26,7 @@ import java.io.IOException;
  */
 @Controller
 public class SysLoginController {
-
+Logger logger = LoggerFactory.getLogger(SysLoginController.class);
     @Autowired
     private Producer producer;
 
@@ -36,6 +38,7 @@ public class SysLoginController {
      */
     @RequestMapping("captcha.jpg")
     public void captcha(HttpServletResponse response) throws IOException {
+
         response.setHeader("Cache-Control", "no-store, no-cache");
         response.setContentType("image/jpeg");
 
@@ -48,6 +51,10 @@ public class SysLoginController {
 
         ServletOutputStream out = response.getOutputStream();
         ImageIO.write(image, "jpg", out);
+        logger.debug("{}:{}:{}","info",text,"jpg");
+        logger.info("{}:{}:{}","info",text,"jpg");
+        logger.warn("{}:{}:{}","info",text,"jpg");
+        logger.error("{}:{}:{}","info",text,"jpg");
     }
 
     /**
