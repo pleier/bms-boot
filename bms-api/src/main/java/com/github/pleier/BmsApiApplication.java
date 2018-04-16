@@ -1,4 +1,4 @@
-package com.github.pleier.bmsapi;
+package com.github.pleier;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
