@@ -63,7 +63,3 @@ logging:
   path: d:/springboot/log
   #file: d:/springboot/log/aaaaaaa.log
 
-logback:
-  logdir: d:/springboot/log
-  appname: sell
-
