@@ -26,7 +26,6 @@ import java.io.IOException;
  */
 @Controller
 public class SysLoginController {
-Logger logger = LoggerFactory.getLogger(SysLoginController.class);
     @Autowired
     private Producer producer;
 
@@ -51,10 +50,6 @@ Logger logger = LoggerFactory.getLogger(SysLoginController.class);
 
         ServletOutputStream out = response.getOutputStream();
         ImageIO.write(image, "jpg", out);
-        logger.debug("{}:{}:{}","info",text,"jpg");
-        logger.info("{}:{}:{}","info",text,"jpg");
-        logger.warn("{}:{}:{}","info",text,"jpg");
-        logger.error("{}:{}:{}","info",text,"jpg");
     }
 
     /**
