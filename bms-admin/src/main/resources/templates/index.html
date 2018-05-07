@@ -42,7 +42,7 @@
                     <dd><a href="">安全设置</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item"><a href="">退出</a></li>
+            <li class="layui-nav-item"><a th:href="@{/logout}">退出</a></li>
         </ul>
     </div>
 
@@ -88,7 +88,11 @@
     //JavaScript代码区域
     layui.use('element', function(){
         var element = layui.element;
-
+        element.tabAdd('demo', {
+            title: '选项卡的标题'
+            ,content: '选项卡的内容' //支持传入html
+            ,id: '选项卡标题的lay-id属性值'
+        });
     });
 </script>
 </body>
