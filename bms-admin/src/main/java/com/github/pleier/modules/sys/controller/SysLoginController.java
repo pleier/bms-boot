@@ -61,7 +61,7 @@ public class SysLoginController {
      * @return
      */
     @ResponseBody
-    @PostMapping(value = "/sys/login")
+    @PostMapping(value = "sys/login")
     public BmsResponse login(String username, String password, String captcha) {
         String kaptcha = ShiroUtils.getKaptcha(Constants.KAPTCHA_SESSION_KEY);
         if (!captcha.equalsIgnoreCase(kaptcha)) {
