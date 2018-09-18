@@ -16,6 +16,8 @@ import java.util.Map;
 public interface ScheduleJobDao extends BaseMapper<ScheduleJobEntity> {
     /**
      * 批量更新状态
+     * @param map map
+     * @return int
      */
     int updateBatch(Map<String, Object> map);
 }

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 <title>定时任务日志</title>
-<#include "/header.html">
+	<th:block th:include="/header.html"/>
 </head>
 <body>
-<div id="rrapp">
+<div id="bmsApp">
 	<div class="grid-btn">
 		<div class="form-group col-sm-2">
 			<input type="text" class="form-control" v-model="q.jobId" @keyup.enter="query" placeholder="任务ID">
@@ -17,6 +17,6 @@
     <div id="jqGridPager"></div>
 </div>
 
-<script src="${request.contextPath}/statics/js/modules/job/schedule_log.js?_${.now?long}"></script>
+<script th:src="@{/js/modules/job/schedule_log.js}"></script>
 </body>
 </html>
