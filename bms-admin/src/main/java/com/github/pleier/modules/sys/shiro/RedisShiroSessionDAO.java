@@ -3,6 +3,7 @@ package com.github.pleier.modules.sys.shiro;
 import com.github.pleier.common.utils.RedisKeys;
 import com.github.pleier.common.utils.RedisUtils;
 import org.apache.shiro.session.Session;
+import org.apache.shiro.session.mgt.ValidatingSession;
 import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,10 @@ public class RedisShiroSessionDAO extends EnterpriseCacheSessionDAO {
 
     @Override
     protected void doUpdate(Session session) {
+        //如果会话过期/停止 没必要再更新了
+        if(session instanceof ValidatingSession && !((ValidatingSession)session).isValid()) {
+            return;
+        }
         super.doUpdate(session);
         final String key = RedisKeys.getShiroSessionKey(session.getId().toString());
         setShiroSession(key, session);

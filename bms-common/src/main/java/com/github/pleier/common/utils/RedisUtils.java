@@ -2,14 +2,11 @@ package com.github.pleier.common.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
-
-import com.alibaba.fastjson.JSON;
 
 /**
  * Redis工具类
@@ -32,7 +29,6 @@ public class RedisUtils {
      * 不设置过期时长
      */
     private final static long NOT_EXPIRE = -1;
-
     /**
      * 插入数据
      *
@@ -41,7 +37,7 @@ public class RedisUtils {
      * @param expire 过期时间
      */
     public void set(String key, Object value, long expire) {
-        redisTemplate.opsForValue().set(key, toJson(value));
+        redisTemplate.opsForValue().set(key, JsonUtils.toJson(value));
         if (expire != NOT_EXPIRE) {
             redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }
@@ -71,7 +67,7 @@ public class RedisUtils {
         if (expire != NOT_EXPIRE) {
             redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }
-        return value == null ? null : fromJson(value, clazz);
+        return value == null ? null : JsonUtils.fromJson(value, clazz);
     }
 
     /**
@@ -120,21 +116,8 @@ public class RedisUtils {
         redisTemplate.delete(key);
     }
 
-    /**
-     * Object转成JSON数据
-     */
-    private String toJson(Object object) {
-        if (object instanceof Integer || object instanceof Long || object instanceof Float ||
-                object instanceof Double || object instanceof Boolean || object instanceof String) {
-            return String.valueOf(object);
-        }
-        return JSON.toJSONString(object);
-    }
+    public void changeDb(int index){
+        RedisConnectionFactory factory = redisTemplate.getConnectionFactory();
 
-    /**
-     * JSON数据，转成Object
-     */
-    private <T> T fromJson(String json, Class<T> clazz) {
-        return JSON.parseObject(json, clazz);
     }
 }
