@@ -61,7 +61,7 @@ $(function () {
 });
 
 var vm = new Vue({
-	el:'#rrapp',
+	el:'#bmsApp',
 	data:{
 		showList: true,
 		title: null,

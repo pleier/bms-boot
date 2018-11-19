@@ -6,6 +6,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,6 +31,7 @@ public class RedisUtils {
      * 不设置过期时长
      */
     private final static long NOT_EXPIRE = -1;
+
     /**
      * 插入数据
      *
@@ -116,8 +119,33 @@ public class RedisUtils {
         redisTemplate.delete(key);
     }
 
-    public void changeDb(int index){
-        RedisConnectionFactory factory = redisTemplate.getConnectionFactory();
-
+    /**
+     * 批量删除
+     *
+     * @param keys keys
+     */
+    public void delete(Collection<String> keys) {
+        redisTemplate.delete(keys);
     }
+
+    /**
+     * 判断key是否存在
+     *
+     * @param key key
+     * @return boolean
+     */
+    public boolean hasKey(String key) {
+        return redisTemplate.hasKey(key);
+    }
+
+    /**
+     * keys
+     *
+     * @param pattern pattern
+     * @return Set<String>
+     */
+    public Set<String> keys(String pattern) {
+        return redisTemplate.keys(pattern);
+    }
+
 }

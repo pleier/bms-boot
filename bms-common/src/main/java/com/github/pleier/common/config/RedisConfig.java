@@ -3,6 +3,7 @@ package com.github.pleier.common.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -17,12 +18,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
     @Bean
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
-        StringRedisTemplate redisTemplate = new StringRedisTemplate(factory);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
+    public RedisTemplate<String, String> redisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
+        StringRedisTemplate redisTemplate = new StringRedisTemplate(lettuceConnectionFactory);
         return redisTemplate;
     }
 }

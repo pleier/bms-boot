@@ -1,8 +1,7 @@
 package com.github.pleier.common.config;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
-import com.github.pleier.modules.sys.shiro.RedisShiroSessionDAO;
-import com.github.pleier.modules.sys.shiro.UserRealm;
+import com.github.pleier.modules.sys.shiro.*;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -28,7 +27,12 @@ public class ShiroConfig {
     public SessionManager sessionManager(RedisShiroSessionDAO redisShiroSessionDAO,
                                          @Value("${bms.redis.open}") boolean redisOpen,
                                          @Value("${bms.shiro.redis}") boolean shiroRedis){
-        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+        DefaultWebSessionManager sessionManager;
+        if(redisOpen && shiroRedis){
+            sessionManager = new ShiroSessionManager();
+        }else {
+            sessionManager = new DefaultWebSessionManager();
+        }
         //设置session过期时间为1小时(单位：毫秒)，默认为30分钟
         sessionManager.setGlobalSessionTimeout(60 * 60 * 1000);
         sessionManager.setSessionValidationSchedulerEnabled(true);
@@ -37,10 +41,22 @@ public class ShiroConfig {
         //如果开启redis缓存且bms.shiro.redis=true，则shiro session存到redis里
         if(redisOpen && shiroRedis){
             sessionManager.setSessionDAO(redisShiroSessionDAO);
+            sessionManager.setCacheManager(redisCacheManager());
+            sessionManager.setSessionFactory(sessionFactory());
         }
         return sessionManager;
     }
 
+    @Bean("redisCacheManager")
+    public RedisCacheManager redisCacheManager(){
+        return new RedisCacheManager();
+    }
+
+    @Bean("sessionFactory")
+    public ShiroSessionFactory sessionFactory(){
+        ShiroSessionFactory sessionFactory = new ShiroSessionFactory();
+        return sessionFactory;
+    }
     @Bean("securityManager")
     public SecurityManager securityManager(UserRealm userRealm, SessionManager sessionManager) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();

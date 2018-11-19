@@ -21,6 +21,8 @@ public class KaptchaConfig {
         properties.put("kaptcha.border", "no");
         properties.put("kaptcha.textproducer.font.color", "black");
         properties.put("kaptcha.textproducer.char.space", "5");
+        //验证码个数
+        properties.put("kaptcha.textproducer.char.length", "5");
         Config config = new Config(properties);
         DefaultKaptcha defaultKaptcha = new DefaultKaptcha();
         defaultKaptcha.setConfig(config);
